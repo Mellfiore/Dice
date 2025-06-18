@@ -11,17 +11,57 @@
       color: #eee;
       max-width: 600px;
       margin: 20px auto;
-      padding: 10px;
+      padding: 20px;
     }
     h1 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+    .form-row label {
+      flex: 1;
+    }
+    .form-row input {
+      flex: 0 0 60px;
+      padding: 5px;
+      font-size: 16px;
+      text-align: center;
+      border-radius: 5px;
+      border: 1px solid #888;
+      background: #333;
+      color: #eee;
+    }
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    button {
+      background: #4caf50;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #888;
+      cursor: not-allowed;
     }
     .dice-container {
       display: flex;
       justify-content: center;
-      gap: 5px;
-      margin-bottom: 10px;
       flex-wrap: wrap;
+      gap: 5px;
+      margin: 10px 0;
     }
     .die {
       width: 40px;
@@ -33,39 +73,15 @@
       font-size: 20px;
       user-select: none;
       border: 2px solid transparent;
-      transition: border-color 0.3s ease;
+      transition: 0.2s;
     }
     .yellow { background: #ffeb3b; color: #222; }
     .green  { background: #4caf50; color: #fff; }
     .black  { background: #333; color: #eee; border: 1px solid #555; }
-
     .success { color: #0f0; font-weight: bold; }
     .mutation { color: #f33; font-weight: bold; }
-
-    /* Удалили .critical-success фон, только текст подсвечен */
-    .critical-success {
-      color: #7CFC00 !important;
-      font-weight: bold;
-    }
-
-    .gear-damage {
-      border: 2px solid #f33 !important;
-    }
-
-    button {
-      background: #4caf50;
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      margin: 5px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:disabled {
-      background: #888;
-      cursor: not-allowed;
-    }
+    .gear-damage { border: 2px solid #f33 !important; }
+    .critical-success { background: #00c853 !important; color: white; }
 
     #results {
       margin-top: 20px;
@@ -75,24 +91,24 @@
 </head>
 <body>
 
-<h1>Бросок кубов — Мутанты: Точка Отсчёта</h1>
+<h1>Бросок кубов — Мутанты</h1>
 
-<div>
-  <label>Жёлтые кубы (характеристика): </label>
+<div class="form-row">
+  <label for="yellowCount">Жёлтые кубы (характеристика):</label>
   <input id="yellowCount" type="number" min="0" max="5" value="3" />
 </div>
-<div>
-  <label>Зелёные кубы (навык): </label>
+<div class="form-row">
+  <label for="greenCount">Зелёные кубы (навык):</label>
   <input id="greenCount" type="number" min="0" max="5" value="3" />
 </div>
-<div>
-  <label>Чёрные кубы (снаряжение): </label>
+<div class="form-row">
+  <label for="blackCount">Чёрные кубы (снаряжение):</label>
   <input id="blackCount" type="number" min="0" max="5" value="1" />
 </div>
 
-<div>
-  <button id="rollBtn">Бросить кубы</button>
-  <button id="riskBtn" disabled>Рискованный бросок</button>
+<div class="button-row">
+  <button id="rollBtn">Бросить</button>
+  <button id="riskBtn" disabled>Риск</button>
 </div>
 
 <div id="results"></div>
@@ -106,8 +122,8 @@
     return Math.floor(Math.random() * 6) + 1;
   }
 
-  function getRiskableDice(diceArray) {
-    return diceArray.map(val => val !== 1 && val !== 6);
+  function getRiskableDice(arr) {
+    return arr.map(val => val !== 1 && val !== 6);
   }
 
   function createDiceElements(arr, colorClass, rerolls = []) {
@@ -116,12 +132,10 @@
       span.className = 'die ' + colorClass;
       span.textContent = val;
 
-      if (val === 6) span.classList.add(rerolls[i] ? 'critical-success' : 'success');
+      if (val === 6) span.classList.add('success');
       if (val === 1) span.classList.add('mutation');
-
-      if (colorClass === 'black' && val === 1) {
-        span.classList.add('gear-damage');
-      }
+      if (colorClass === 'black' && val === 1) span.classList.add('gear-damage');
+      if (val === 6 && rerolls[i]) span.classList.add('critical-success');
 
       return span;
     });
@@ -135,17 +149,19 @@
     const greenDice  = createDiceElements(lastRoll.green, 'green', rerollFlags.green);
     const blackDice  = createDiceElements(lastRoll.black, 'black', rerollFlags.black);
 
-    const addContainer = (label, dice) => {
+    const addDiceGroup = (label, dice) => {
       const container = document.createElement('div');
-      container.className = 'dice-container';
-      dice.forEach(die => container.appendChild(die));
-      resultsDiv.appendChild(document.createTextNode(label));
+      container.innerHTML = `<b>${label}</b>`;
+      const diceRow = document.createElement('div');
+      diceRow.className = 'dice-container';
+      dice.forEach(die => diceRow.appendChild(die));
+      container.appendChild(diceRow);
       resultsDiv.appendChild(container);
     };
 
-    addContainer('Жёлтые кубы:', yellowDice);
-    addContainer('Зелёные кубы:', greenDice);
-    addContainer('Чёрные кубы:', blackDice);
+    addDiceGroup('Жёлтые:', yellowDice);
+    addDiceGroup('Зелёные:', greenDice);
+    addDiceGroup('Чёрные:', blackDice);
 
     const allDice = [...lastRoll.yellow, ...lastRoll.green, ...lastRoll.black];
     const successCount = allDice.filter(v => v === 6).length;
@@ -211,5 +227,4 @@
 </script>
 
 </body>
-  </html>
-  
+</html>
