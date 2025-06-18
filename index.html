@@ -66,15 +66,15 @@
     .face.bottom { transform: translateY(18px) rotateX(-90deg); }
 
     .rolling .cube {
-      animation: roll var(--roll-duration, 1.2s) ease-out;
+      animation: roll var(--roll-duration, 1.2s) cubic-bezier(0.25, 0.1, 0.25, 1.0);
     }
 
     @keyframes roll {
       0% { transform: rotateX(0deg) rotateY(0deg); }
       25% { transform: rotateX(180deg) rotateY(90deg); }
       50% { transform: rotateX(360deg) rotateY(270deg); }
-      75% { transform: rotateX(540deg) rotateY(450deg); }
-      100% { transform: rotateX(720deg) rotateY(720deg); }
+      75% { transform: rotateX(450deg) rotateY(360deg); }
+      100% { transform: rotateX(540deg) rotateY(450deg); }
     }
 
     button {
