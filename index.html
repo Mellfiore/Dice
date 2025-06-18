@@ -20,14 +20,14 @@
     .dice-container {
       display: flex;
       justify-content: center;
-      gap: 5px;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 15px;
       flex-wrap: wrap;
     }
 
     .die {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       position: relative;
       transform-style: preserve-3d;
       user-select: none;
@@ -42,12 +42,12 @@
 
     .face {
       position: absolute;
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
       text-align: center;
       font-weight: bold;
-      font-size: 20px;
+      font-size: 18px;
       border-radius: 4px;
       box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
     }
@@ -58,22 +58,22 @@
 
     .gear-damage .face { border: 2px solid #f33 !important; }
 
-    .face.front  { transform: translateZ(20px); }
-    .face.back   { transform: translateZ(-20px) rotateY(180deg); }
-    .face.right  { transform: translateX(20px) rotateY(90deg); }
-    .face.left   { transform: translateX(-20px) rotateY(-90deg); }
-    .face.top    { transform: translateY(-20px) rotateX(90deg); }
-    .face.bottom { transform: translateY(20px) rotateX(-90deg); }
+    .face.front  { transform: translateZ(18px); }
+    .face.back   { transform: translateZ(-18px) rotateY(180deg); }
+    .face.right  { transform: translateX(18px) rotateY(90deg); }
+    .face.left   { transform: translateX(-18px) rotateY(-90deg); }
+    .face.top    { transform: translateY(-18px) rotateX(90deg); }
+    .face.bottom { transform: translateY(18px) rotateX(-90deg); }
 
     .rolling .cube {
-      animation: roll 1.2s ease-in-out;
+      animation: roll var(--roll-duration, 1.2s) ease-out;
     }
 
     @keyframes roll {
       0% { transform: rotateX(0deg) rotateY(0deg); }
-      25% { transform: rotateX(270deg) rotateY(180deg); }
-      50% { transform: rotateX(450deg) rotateY(360deg); }
-      75% { transform: rotateX(630deg) rotateY(540deg); }
+      25% { transform: rotateX(180deg) rotateY(90deg); }
+      50% { transform: rotateX(360deg) rotateY(270deg); }
+      75% { transform: rotateX(540deg) rotateY(450deg); }
       100% { transform: rotateX(720deg) rotateY(720deg); }
     }
 
@@ -165,6 +165,12 @@
       const cube = document.createElement('div');
       cube.className = 'cube';
 
+      // Устанавливаем случайную длительность анимации от 1 до 1.5 секунд
+      if (!isRiskyRoll || rerolls[i]) {
+        const duration = (1 + Math.random() * 0.5).toFixed(2);
+        die.style.setProperty('--roll-duration', `${duration}s`);
+      }
+
       // Создаём 6 граней кубика
       ['front', 'back', 'right', 'left', 'top', 'bottom'].forEach(face => {
         const faceDiv = document.createElement('div');
@@ -185,7 +191,7 @@
               face.classList.add('gear-damage');
             }
           });
-        }, 1200); // Синхронизация с длительностью анимации
+        }, 1500); // Увеличил до 1500ms для запаса под максимальную длительность анимации
       } else {
         // Для 1 и 6 при рискованном броске: сразу показываем значение без анимации
         cube.querySelectorAll('.face').forEach(face => {
@@ -217,6 +223,7 @@
       dice.forEach(die => container.appendChild(die));
       const labelDiv = document.createElement('div');
       labelDiv.textContent = label;
+      labelDiv.style.marginBottom = '5px';
       resultsDiv.appendChild(labelDiv);
       resultsDiv.appendChild(container);
     };
@@ -233,14 +240,14 @@
     const summary = document.createElement('div');
     summary.style.marginTop = '10px';
     summary.innerHTML = `<b>Успехов:</b> ${successCount} | <b>Мутаций:</b> ${mutationCount} | <b>Повреждений снаряжения:</b> ${gearDamage}`;
-    setTimeout(() => resultsDiv.appendChild(summary), 1200);
+    setTimeout(() => resultsDiv.appendChild(summary), 1500);
 
     if (riskUsed) {
       const riskNote = document.createElement('div');
       riskNote.style.color = '#ff6600';
       riskNote.style.marginTop = '10px';
       riskNote.textContent = 'Рискованный бросок уже использован.';
-      setTimeout(() => resultsDiv.appendChild(riskNote), 1200);
+      setTimeout(() => resultsDiv.appendChild(riskNote), 1500);
     }
   }
 
